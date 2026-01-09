@@ -1,0 +1,222 @@
+/* =========================================
+   ALARM CARD LAYOUT
+   ========================================= */
+
+.alarm-row{
+  font-family: "Segoe UI", Arial, sans-serif;
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin: 10px 0;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(0,0,0,.06);
+}
+
+.alarm-header{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.alarm-header .title{
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1.25;
+  flex: 1 1 auto;
+  min-width: 0;
+  /* keeps long alarm names tidy */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* =========================================
+   SEVERITY BADGES
+   - your DAX outputs: severity-" & _class
+   - so _class should map to these suffixes
+   ========================================= */
+
+.alarm-header [class^="severity-"]{
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+/* Common severities (add/rename to match your data) */
+.severity-critical,
+.severity-CRITICAL{
+  background: #ffe9ea;
+  color: #b00020;
+  border-color: #ffd0d3;
+}
+
+.severity-high,
+.severity-HIGH{
+  background: #fff2e0;
+  color: #b54708;
+  border-color: #ffe0b8;
+}
+
+.severity-medium,
+.severity-MEDIUM{
+  background: #fff9db;
+  color: #7a5b00;
+  border-color: #ffef9a;
+}
+
+.severity-low,
+.severity-LOW{
+  background: #e9f7ef;
+  color: #137333;
+  border-color: #c9eed8;
+}
+
+.severity-info,
+.severity-INFO{
+  background: #e7f0ff;
+  color: #1a4fb3;
+  border-color: #cfe0ff;
+}
+
+.severity-unknown{
+  background: #f3f4f6;
+  color: #444;
+  border-color: #e5e7eb;
+}
+
+/* =========================================
+   DETAIL GRID (the summary rows under header)
+   ========================================= */
+
+.alarm-details{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 14px;
+  font-size: 12px;
+  color: #2b2b2b;
+  margin-bottom: 10px;
+}
+
+.alarm-details b{
+  font-weight: 700;
+  color: #111;
+}
+
+/* If your visual is narrow, stack nicely */
+@media (max-width: 520px){
+  .alarm-details{
+    grid-template-columns: 1fr;
+  }
+  .alarm-header .title{
+    white-space: normal;
+  }
+}
+
+/* =========================================
+   COLLAPSIBLE DETAILS (checkbox toggle trick)
+   ========================================= */
+
+.details-toggle{
+  display: none;
+}
+
+/* The "Details" link */
+.details-link{
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1a73e8;
+  cursor: pointer;
+  user-select: none;
+  text-decoration: none;
+  margin-bottom: 8px;
+}
+
+.details-link:hover{
+  text-decoration: underline;
+}
+
+/* collapsed state */
+.details-toggle ~ .alarm-extra{
+  display: none;
+}
+
+/* expanded state */
+.details-toggle:checked ~ .alarm-extra{
+  display: block;
+  margin-top: 8px;
+  padding-top: 10px;
+  border-top: 1px dashed #e6e6e6;
+}
+
+/* optional: change label text styling when open */
+.details-toggle:checked + .details-link{
+  color: #0b57d0;
+}
+
+/* =========================================
+   DETAILS TABLE
+   ========================================= */
+
+.alarm-extra{
+  background: #fafafa;
+  border: 1px solid #eeeeee;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.detailtable{
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.detailtable thead th{
+  text-align: left;
+  padding: 8px 8px;
+  background: #f3f4f6;
+  color: #111;
+  border-bottom: 1px solid #e5e7eb;
+  font-weight: 800;
+}
+
+.detailtable tbody td{
+  padding: 7px 8px;
+  border-bottom: 1px solid #ededed;
+  color: #222;
+}
+
+.detailtable tbody tr:last-child td{
+  border-bottom: none;
+}
+
+/* Zebra striping */
+.detailtable tbody tr:nth-child(even){
+  background: #ffffff;
+}
+
+/* Numeric alignment (Duration column is 3rd) */
+.detailtable tbody td:nth-child(3){
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* =========================================
+   NICE-TO-HAVES
+   ========================================= */
+
+/* tighten overall spacing when many cards render */
+.alarm-row + .alarm-row{
+  margin-top: 8px;
+}
+
+/* make timestamps more readable */
+.detailtable td{
+  font-variant-numeric: tabular-nums;
+}
