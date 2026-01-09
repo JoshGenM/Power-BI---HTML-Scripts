@@ -1,0 +1,128 @@
+Alarm HTML = 
+CONCATENATEX(
+    ALLSELECTED ( 'bpi_reports scada_alarm_details'[AlarmId] ),
+
+    /* ===============================
+       CURRENT ROW CONTEXT
+       =============================== */
+
+    VAR _alarmId =
+        'bpi_reports scada_alarm_details'[AlarmId]
+
+    VAR _alarmIdTxt =
+        FORMAT ( _alarmId, "@" )
+
+    VAR _toggleId =
+        "toggle-" & _alarmIdTxt
+
+    /* ===============================
+       ALARM METADATA
+       =============================== */
+
+    VAR _description =
+        CALCULATE (
+            SELECTEDVALUE ( 'bpi_reports scada_alarm_details'[description] ),
+            'bpi_reports scada_alarm_details'[AlarmId] = _alarmId
+        )
+
+    VAR _class =
+        CALCULATE (
+            SELECTEDVALUE ( 'bpi_reports scada_alarm_details'[class] ),
+            'bpi_reports scada_alarm_details'[AlarmId] = _alarmId
+        )
+
+    VAR _classTxt =
+        FORMAT ( _class, "@" )
+
+    VAR _errortype =
+        CALCULATE (
+            SELECTEDVALUE ( 'bpi_reports scada_alarm_details'[error_type] ),
+            'bpi_reports scada_alarm_details'[AlarmId] = _alarmId
+        )
+
+    VAR _include =
+        CALCULATE (
+            SELECTEDVALUE ( reference_critical_alarms[include] ),
+            TREATAS ( { _alarmId }, reference_critical_alarms[CriticalAlarmKey] )
+        )
+
+    /* ===============================
+       DETAIL EVENTS
+       =============================== */
+
+    VAR _events =
+        TOPN (
+            10,
+            FILTER (
+                ALLSELECTED ( 'bpi_reports scada_alarm_details' ),
+                'bpi_reports scada_alarm_details'[AlarmId] = _alarmId
+            ),
+            'bpi_reports scada_alarm_details'[dt_triggered],
+            DESC
+        )
+
+    VAR _eventsHtml =
+        "<div class='alarm-extra'>
+            <table class='detailtable'>
+                <thead>
+                    <tr>
+                        <th>Triggered</th>
+                        <th>Cleared</th>
+                        <th>Duration</th>
+                    </tr>
+                </thead>
+                <tbody>"
+        &
+        CONCATENATEX (
+            _events,
+            "<tr>"
+                & "<td>"
+                & FORMAT (
+                    'bpi_reports scada_alarm_details'[dt_triggered],
+                    "yyyy-MM-dd HH:mm"
+                )
+                & "</td>"
+                & "<td>"
+                & FORMAT (
+                    'bpi_reports scada_alarm_details'[dt_cleared],
+                    "yyyy-MM-dd HH:mm"
+                )
+                & "</td>"
+                & "<td>"
+                & FORMAT (
+                    'bpi_reports scada_alarm_details'[duration],
+                    "#,0"
+                )
+                & "</td>"
+                & "</tr>",
+            ""
+        )
+        &
+        "</tbody></table></div>"
+
+    /* ===============================
+       FINAL HTML
+       =============================== */
+
+    RETURN
+"
+<div class='alarm-row'>
+    <div class='alarm-header'>
+        <div class='title'>
+            " & COALESCE ( _description, _alarmIdTxt ) & "
+        </div>
+        <div class='severity-" & COALESCE ( _classTxt, "unknown" ) & "'>
+            Severity: " & COALESCE ( _classTxt, "N/A" ) & "
+        </div>
+    </div>
+
+    <input type='checkbox' id='" & _toggleId & "' class='details-toggle'>
+    <label for='" & _toggleId & "' class='details-link'>Details</label>
+
+    " & _eventsHtml & "
+</div>
+",
+    "",
+    [Rank of Scada Alarms],
+    DESC
+)
